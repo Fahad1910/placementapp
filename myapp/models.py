@@ -33,7 +33,7 @@ class StudentPofile(models.Model):
     options=(
         ("male","male"),("female","female")
     )
-    gender=models.models.CharField(max_length=200,choices=options,default="male")
+    gender=models.CharField(max_length=200,choices=options,default="male")
     experience=models.PositiveIntegerField(default=0)
     address=models.CharField(max_length=200)
     phone=models.CharField(max_length=200)
