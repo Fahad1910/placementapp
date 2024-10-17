@@ -14,6 +14,7 @@ class Jobs(models.Model):
     description=models.CharField(max_length=200)
     salary=models.PositiveIntegerField()
     experience=models.PositiveIntegerField(default=0)
+    created_date=models.DateTimeField(auto_now_add=True,null=True)
     last_date=models.DateField()
     vaccancies=models.PositiveIntegerField(default=1)
     poster=models.ImageField(upload_to="posterimages",null=True,blank=True)
@@ -21,9 +22,18 @@ class Jobs(models.Model):
     qualification=models.CharField(max_length=200)
     category=models.ForeignKey(Category,on_delete=models.DO_NOTHING)
     status=models.BooleanField(default=True)
+    company=models.CharField(max_length=200,null=True)
+    options=(
+        ("part-time","part-time"),("full-time","full-time")
+    )
+    job_type=models.CharField(max_length=200,choices=options,default="full-time")
 
     def __str__(self):
         return self.title
+    
+    def application_count(self):
+        qs=Applications.objects.filter(job=self).count()
+        return qs
     
 class StudentPofile(models.Model):
     qualification=models.CharField(max_length=200)
@@ -38,14 +48,18 @@ class StudentPofile(models.Model):
     address=models.CharField(max_length=200)
     phone=models.CharField(max_length=200)
     profile_pic=models.ImageField(upload_to="profilepics",null=True,blank=True)
-    user=models.OneToOneField(User,on_delete=models.CASCADE)
+    user=models.OneToOneField(User,on_delete=models.CASCADE,related_name="profile")
+    saved_jobs=models.ManyToManyField(Jobs,related_name="saved",null=True)
+
+    def __str__(self):
+        return self.user.username
 
 class Applications(models.Model):
     job=models.ForeignKey(Jobs,on_delete=models.DO_NOTHING)
     student=models.ForeignKey(User,on_delete=models.CASCADE)
-    applied_date=models.DateField(auto_now_add=True)
+    applied_date=models.DateTimeField(auto_now_add=True)
     options=(
-        ("pending","pending"),("rejected","rejected"),("processing","processing")
+        ("pending","pending"),("rejected","rejected"),("processing","processing"),("shortlisted","shortlisted")
     )
     status=models.CharField(max_length=200,choices=options,default="pending")
 
